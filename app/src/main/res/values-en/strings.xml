@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">eLocations</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="more">More</string>
+    <string name="action_watch">Watch</string>
+    <string name="action_download">Download</string>
+    <string name="action_search">Search</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_home">Home</string>
+    <string name="action_add_new">Adicionar novo</string>
+</resources>

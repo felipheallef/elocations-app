@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">eLocations</string>
+    <string name="title_activity_maps">Mapa</string>
+
+    <string name="more">Mais</string>
+    <string name="action_watch">Assistir</string>
+    <string name="action_download">Baixar</string>
+    <string name="action_search">Pesquisar</string>
+    <string name="action_settings">Configurações</string>
+    <string name="action_home">Início</string>
+    <string name="action_add_new">Adicionar novo</string>
+
+</resources>
