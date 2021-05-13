@@ -9,5 +9,14 @@
     <string name="action_settings">Configurações</string>
     <string name="action_home">Início</string>
     <string name="action_add_new">Adicionar novo</string>
+    <string name="action_save">Salvar</string>
+    <string name="action_delete">Apagar</string>
+
+    <string name="label_name">Nome</string>
+    <string name="label_description">Descrição</string>
+    <string name="label_category">Categoria</string>
+    <string name="label_pictures">Imagens</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="label_number">Telefone</string>
 
 </resources>

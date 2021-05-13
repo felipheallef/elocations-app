@@ -1,15 +1,16 @@
 package com.felipheallef.elocations.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.ActivityMainBinding
+import com.felipheallef.elocations.ui.model.BusinessesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
@@ -30,13 +31,19 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        binding.fabAddNew.setOnClickListener {
+            Intent(applicationContext, CreateNewActivity::class.java).apply {
+                startActivity(this)
+            }
+        }
+
     }
 
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -44,16 +51,26 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        val engeselt = Business(1, "Engeselt", "A ENGESELT oferece serviços com foco no alto padrão de qualidade para garantir aos seus clientes uma parceria de sucesso.", "(83) 3268-5743", null, LatLng(-7.1697691, -34.8632688))
+//        val engeselt = Business("Engeselt", "A ENGESELT oferece serviços com foco no alto padrão de qualidade para garantir aos seus clientes uma parceria de sucesso.", "(83) 3268-5743", -7.1697691, -34.8632688)
 
-        // Add a marker in Sydney and move the camera
-        val marker = MarkerOptions()
-            .position(engeselt.location)
-            .title(engeselt.name)
-            .snippet(engeselt.description)
+        val model = BusinessesViewModel(applicationContext)
+//        Application.database?.businessDao()?.insertAll(engeselt)
 
-        mMap.addMarker(marker)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(engeselt.location, 15F))
+        model.business.observe(this@MainActivity, {
+            // Add a marker to each business in the database
+
+            it.forEach { business ->
+                val marker = MarkerOptions()
+                    .position(business.location)
+                    .title(business.name)
+                    .snippet(business.description)
+                mMap.addMarker(marker)
+            }
+            // Move the camera to the first entry in the business list
+
+            if(it.isNotEmpty())
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it[0].location, 15F))
+        })
 
         mMap.setOnInfoWindowClickListener(this)
     }
