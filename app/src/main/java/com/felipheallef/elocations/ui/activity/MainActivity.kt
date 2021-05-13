@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.felipheallef.elocations.R
-import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.ActivityMainBinding
 import com.felipheallef.elocations.ui.model.BusinessesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,12 +31,27 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
             .findFragmentById(R.id.fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        binding.fabAddNew.hide()
+
         binding.fabAddNew.setOnClickListener {
-            Intent(applicationContext, CreateNewActivity::class.java).apply {
-                startActivity(this)
+
+            val coordinates = mMap.cameraPosition.target
+            val extras = Bundle()
+
+            extras.putDouble("latitude", coordinates.latitude)
+            extras.putDouble("longitude", coordinates.longitude)
+
+            val intent = Intent(applicationContext, CreateNewActivity::class.java).apply {
+                putExtras(extras)
             }
+            startActivity(intent)
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        setupMapMarkers()
     }
 
     /**
@@ -50,11 +64,24 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
+        binding.fabAddNew.show()
 //        val engeselt = Business("Engeselt", "A ENGESELT oferece serviços com foco no alto padrão de qualidade para garantir aos seus clientes uma parceria de sucesso.", "(83) 3268-5743", -7.1697691, -34.8632688)
-
-        val model = BusinessesViewModel(applicationContext)
 //        Application.database?.businessDao()?.insertAll(engeselt)
+        setupMapMarkers()
+
+        mMap.setOnInfoWindowClickListener(this)
+    }
+
+    override fun onInfoWindowClick(marker: Marker) {
+        Snackbar.make(
+            binding.root,
+            "Info window clicked",
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun setupMapMarkers() {
+        val model = BusinessesViewModel(applicationContext)
 
         model.business.observe(this@MainActivity, {
             // Add a marker to each business in the database
@@ -71,15 +98,5 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
             if(it.isNotEmpty())
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it[0].location, 15F))
         })
-
-        mMap.setOnInfoWindowClickListener(this)
-    }
-
-    override fun onInfoWindowClick(marker: Marker) {
-        Snackbar.make(
-            binding.root,
-            "Info window clicked",
-            Snackbar.LENGTH_SHORT
-        ).show()
     }
 }

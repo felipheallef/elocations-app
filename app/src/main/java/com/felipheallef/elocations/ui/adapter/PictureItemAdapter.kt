@@ -21,12 +21,9 @@ class PictureItemAdapter(
      * (custom ViewHolder).
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-//        val textView: TextView = view.findViewById(R.id.tv_film_title)
-//        val ivFilmCover: ImageView = view.findViewById(R.id.iv_film_cover)
-
-        init {
-            // Define click listener for the ViewHolder's View.
-        }
+//        init {
+//            // Define click listener for the ViewHolder's View.
+//        }
     }
 
     // Create new views (invoked by the layout manager)

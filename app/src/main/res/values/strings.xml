@@ -18,5 +18,7 @@
     <string name="label_pictures">Imagens</string>
     <string name="action_cancel">Cancelar</string>
     <string name="label_number">Telefone</string>
+    <string name="action_add_new_business">Adicionar novo negócio</string>
+    <string name="action_add">Adicionar</string>
 
 </resources>
