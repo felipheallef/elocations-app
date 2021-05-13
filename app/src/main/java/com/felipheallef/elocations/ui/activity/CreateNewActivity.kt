@@ -5,11 +5,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.felipheallef.elocations.R
@@ -17,13 +17,18 @@ import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.ActivityCreateNewBinding
 import com.felipheallef.elocations.ui.adapter.PictureItemAdapter
 import com.felipheallef.elocations.ui.model.BusinessesViewModel
+import java.io.File
 import java.io.FileDescriptor
+import java.io.FileOutputStream
 import java.io.IOException
+import java.text.DateFormat
+import java.util.*
 
 class CreateNewActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateNewBinding
     private val pictures = mutableListOf<Bitmap>()
+    private lateinit var currentPhotoPath: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,10 +58,26 @@ class CreateNewActivity : AppCompatActivity() {
             val category = binding.fieldCategory.editText?.text.toString()
             val number = binding.fieldNumber.editText?.text.toString()
             val latitude = intent.extras?.getDouble("latitude")
-            val longitude = intent.extras?.getDouble("latitude")
+            val longitude = intent.extras?.getDouble("longitude")
             val data = Business(name, description, number, category, latitude!!, longitude!!)
 
-            model.add(data)
+            val id = model.add(data)
+
+            if(pictures.isNotEmpty()) {
+                pictures.forEachIndexed { index, bitmap ->
+                    val fOut = FileOutputStream(createImageFile(id!!, index))
+
+                    bitmap.compress(
+                        Bitmap.CompressFormat.JPEG,
+                        85,
+                        fOut
+                    ) // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+
+                    fOut.flush() // Not really required
+                    fOut.close() // do not forget to close the stream
+                }
+            }
+
         }
 
     }
@@ -86,5 +107,21 @@ class CreateNewActivity : AppCompatActivity() {
         parcelFileDescriptor?.close()
         return image
     }
+
+    @Throws(IOException::class)
+    private fun createImageFile(id: Long, position: Int): File {
+        // Create an image file name
+        val timeStamp: String = DateFormat.getDateTimeInstance().format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "${id}_${position}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
 
 }

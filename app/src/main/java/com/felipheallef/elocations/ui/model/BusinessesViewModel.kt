@@ -1,10 +1,8 @@
 package com.felipheallef.elocations.ui.model
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.room.Room
 import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.data.AppDatabase
 import com.felipheallef.elocations.data.model.Business
@@ -24,8 +22,8 @@ class BusinessesViewModel(context: Context) : ViewModel() {
         business.value = db?.businessDao()?.getAll()
     }
 
-    fun add(business: Business) {
-        db?.businessDao()?.insertAll(business)
+    fun add(business: Business): Long? {
+        return db?.businessDao()?.insert(business)
     }
 }
 
