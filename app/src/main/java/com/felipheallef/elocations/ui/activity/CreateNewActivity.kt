@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
@@ -29,6 +30,11 @@ class CreateNewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateNewBinding
     private val pictures = mutableListOf<Bitmap>()
     private lateinit var currentPhotoPath: String
+
+    private lateinit var name: String
+    private lateinit var description: String
+    private lateinit var category: String
+    private lateinit var number: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,32 +56,39 @@ class CreateNewActivity : AppCompatActivity() {
             startActivityForResult(pickIntent, 100)
         }
 
+
         loadPictures()
 
         binding.btnSave.setOnClickListener {
-            val name = binding.fieldName.editText?.text.toString()
-            val description = binding.fieldDescription.editText?.text.toString()
+            name = binding.fieldName.editText?.text.toString()
+            description = binding.fieldDescription.editText?.text.toString()
             val category = binding.fieldCategory.editText?.text.toString()
-            val number = binding.fieldNumber.editText?.text.toString()
+            number = binding.fieldNumber.editText?.text.toString()
             val latitude = intent.extras?.getDouble("latitude")
             val longitude = intent.extras?.getDouble("longitude")
             val data = Business(name, description, number, category, latitude!!, longitude!!)
 
-            val id = model.add(data)
+            if(validateData()) {
+                val id = model.add(data)
 
-            if(pictures.isNotEmpty()) {
-                pictures.forEachIndexed { index, bitmap ->
-                    val fOut = FileOutputStream(createImageFile(id!!, index))
+                if(pictures.isNotEmpty()) {
+                    pictures.forEachIndexed { index, bitmap ->
+                        val fOut = FileOutputStream(createImageFile(id!!, index))
 
-                    bitmap.compress(
-                        Bitmap.CompressFormat.JPEG,
-                        85,
-                        fOut
-                    ) // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+                        bitmap.compress(
+                            Bitmap.CompressFormat.JPEG,
+                            85,
+                            fOut
+                        ) // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
 
-                    fOut.flush() // Not really required
-                    fOut.close() // do not forget to close the stream
+                        fOut.flush() // Not really required
+                        fOut.close() // do not forget to close the stream
+                    }
                 }
+
+                setResult(RESULT_OK)
+                finish();
+
             }
 
         }
@@ -86,6 +99,26 @@ class CreateNewActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         pictures.add(getBitmapFromUri(data?.data))
         loadPictures()
+    }
+
+    private fun validateData(): Boolean {
+        binding.fieldName.error = ""
+        binding.fieldDescription.error = ""
+        binding.fieldNumber.error = ""
+        return when {
+            name.isEmpty() -> {
+                binding.fieldName.error = "Digite o nome do estabelecimento."
+                false
+            }
+            description.isEmpty() -> {
+                binding.fieldDescription.error = "Digite uma descrição para o negócio."
+                false
+            }
+            number.isEmpty() -> {
+                binding.fieldNumber.error = "Insira um número de telefone."
+                false
+            } else -> true
+        }
     }
 
     private fun loadPictures() {

@@ -20,5 +20,6 @@
     <string name="label_number">Telefone</string>
     <string name="action_add_new_business">Adicionar novo negócio</string>
     <string name="action_add">Adicionar</string>
+    <string name="action_edit">Editar</string>
 
 </resources>

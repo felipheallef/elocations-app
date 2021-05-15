@@ -1,15 +1,19 @@
 package com.felipheallef.elocations.ui.model
 
 import android.content.Context
+import android.text.Editable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.felipheallef.elocations.Application
+import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.AppDatabase
+import com.felipheallef.elocations.data.BusinessFormState
 import com.felipheallef.elocations.data.model.Business
 
 class BusinessesViewModel(context: Context) : ViewModel() {
 
     val business = MutableLiveData<List<Business>>()
+    val formState = MutableLiveData<BusinessFormState>()
     private var db: AppDatabase?
 
     init {
@@ -25,5 +29,6 @@ class BusinessesViewModel(context: Context) : ViewModel() {
     fun add(business: Business): Long? {
         return db?.businessDao()?.insert(business)
     }
+
 }
 
