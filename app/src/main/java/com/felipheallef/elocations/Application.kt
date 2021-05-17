@@ -1,6 +1,7 @@
 package com.felipheallef.elocations
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import com.felipheallef.elocations.data.AppDatabase
 

@@ -2,7 +2,12 @@ package com.felipheallef.elocations.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.ActivityMainBinding
@@ -14,11 +19,13 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import java.io.File
 
 class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mMap: GoogleMap
+    private var guidesActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +64,35 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.action_toggle_guides -> {
+                guidesActive = !guidesActive
+                if(guidesActive){
+                    item.icon = ContextCompat.getDrawable(applicationContext, R.drawable.ic_visibility_off_24)
+                    binding.guides.visibility = View.VISIBLE
+                }else{
+                    item.icon = ContextCompat.getDrawable(applicationContext, R.drawable.ic_visibility_24)
+                    binding.guides.visibility = View.GONE
+                }
+                true
+            }
+            R.id.action_settings -> {
+//                Intent(applicationContext, SettingsActivity::class.java).apply {
+//                    startActivity(this)
+//                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -75,7 +111,8 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
     }
 
     override fun onInfoWindowClick(marker: Marker) {
-        BusinessBottomSheetFragment.getInstance(marker.tag as Business).apply {
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        BusinessBottomSheetFragment.getInstance(marker.tag as Business, storageDir).apply {
             this.show(supportFragmentManager, tag)
         }
     }

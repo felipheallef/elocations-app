@@ -8,10 +8,10 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
@@ -22,19 +22,17 @@ import java.io.File
 import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.IOException
-import java.text.DateFormat
-import java.util.*
 
 class CreateNewActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateNewBinding
-    private val pictures = mutableListOf<Bitmap>()
+    private var pictures = mutableListOf<Bitmap>()
     private lateinit var currentPhotoPath: String
 
     private lateinit var name: String
     private lateinit var description: String
-    private lateinit var category: String
     private lateinit var number: String
+    private lateinit var adapter: PictureItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +45,8 @@ class CreateNewActivity : AppCompatActivity() {
         val model = BusinessesViewModel(applicationContext)
 
         val items = listOf("Loja de departamento", "Universidade", "Shopping", "Aeroporto")
-        val adapter = ArrayAdapter(applicationContext, R.layout.list_item, items)
-        (binding.fieldCategory.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+        val arrAdapter = ArrayAdapter(applicationContext, R.layout.list_item, items)
+        (binding.fieldCategory.editText as? AutoCompleteTextView)?.setAdapter(arrAdapter)
 
 
         binding.btnMore.setOnClickListener {
@@ -56,6 +54,15 @@ class CreateNewActivity : AppCompatActivity() {
             startActivityForResult(pickIntent, 100)
         }
 
+        binding.listPictures.setHasFixedSize(true)
+        binding.listPictures.layoutManager = LinearLayoutManager(
+            applicationContext,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+
+        adapter = PictureItemAdapter(pictures)
+        binding.listPictures.adapter = adapter
 
         loadPictures()
 
@@ -87,7 +94,7 @@ class CreateNewActivity : AppCompatActivity() {
                 }
 
                 setResult(RESULT_OK)
-                finish();
+                finish()
 
             }
 
@@ -97,8 +104,10 @@ class CreateNewActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        pictures.add(getBitmapFromUri(data?.data))
-        loadPictures()
+
+        if (requestCode == 100 && data != null) {
+            adapter.add(getBitmapFromUri(data.data))
+        }
     }
 
     private fun validateData(): Boolean {
@@ -122,18 +131,13 @@ class CreateNewActivity : AppCompatActivity() {
     }
 
     private fun loadPictures() {
-        binding.listPictures.setHasFixedSize(true)
-        binding.listPictures.layoutManager = LinearLayoutManager(
-            applicationContext,
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-        binding.listPictures.adapter = PictureItemAdapter(pictures)
+        adapter = PictureItemAdapter(pictures)
+        binding.listPictures.adapter = adapter
 //        rvFilms.adapter = FilmCategoryItemAdapter(filmsCategory, fragmentManager!!)
     }
 
     @Throws(IOException::class)
-    private fun getBitmapFromUri(uri: Uri?): Bitmap {
+    fun getBitmapFromUri(uri: Uri?): Bitmap {
         val parcelFileDescriptor: ParcelFileDescriptor? = contentResolver.openFileDescriptor(uri!!, "r")
         val fileDescriptor: FileDescriptor? = parcelFileDescriptor?.fileDescriptor
         val image: Bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor)
@@ -144,7 +148,7 @@ class CreateNewActivity : AppCompatActivity() {
     @Throws(IOException::class)
     private fun createImageFile(id: Long, position: Int): File {
         // Create an image file name
-        val timeStamp: String = DateFormat.getDateTimeInstance().format(Date())
+//        val timeStamp: String = DateFormat.getDateTimeInstance().format(Date())
         val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "${id}_${position}_", /* prefix */
