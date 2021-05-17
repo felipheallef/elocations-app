@@ -33,14 +33,15 @@
 
     <TextView
         android:id="@+id/tv_business_description"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxHeight="119dp"
         android:text="@string/app_name"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tv_business_name"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_edit"
