@@ -18,6 +18,7 @@
     <string name="label_pictures">Pictures</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_add_new_business">Add new business</string>
+    <string name="action_edit_business">Edit business</string>
     <string name="label_number">Phone number</string>
     <string name="action_edit">Edit</string>
     <string name="action_show_guides">Show guides</string>

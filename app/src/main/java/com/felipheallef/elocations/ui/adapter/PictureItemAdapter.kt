@@ -14,13 +14,13 @@ import com.google.android.material.snackbar.Snackbar
 const val TAG = "PictureItemAdapter"
 
 class PictureItemAdapter(
-    var pictures: MutableList<Bitmap>) :
+    var pictures: MutableList<Bitmap>,
+    val editable: Boolean = false) :
     RecyclerView.Adapter<PictureItemAdapter.ViewHolder>() {
 
     lateinit var context: Context
     private lateinit var binding: ListItemPictureBinding
     private var index = 0
-    val editable = false
 
     /**
      * Provide a reference to the type of views that you are using

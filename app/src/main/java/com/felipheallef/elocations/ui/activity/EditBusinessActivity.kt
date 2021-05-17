@@ -13,20 +13,22 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
-import com.felipheallef.elocations.databinding.ActivityCreateNewBinding
+import com.felipheallef.elocations.databinding.ActivityEditBinding
 import com.felipheallef.elocations.ui.adapter.PictureItemAdapter
-import com.felipheallef.elocations.ui.model.BusinessesViewModel
+import com.google.gson.Gson
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.IOException
 
-class CreateNewActivity : AppCompatActivity() {
+class EditBusinessActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityCreateNewBinding
+    private val tag = "EditBusiness"
     private var pictures = mutableListOf<Bitmap>()
+    private lateinit var binding: ActivityEditBinding
     private lateinit var currentPhotoPath: String
 
     private lateinit var name: String
@@ -36,23 +38,27 @@ class CreateNewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCreateNewBinding.inflate(layoutInflater)
+        binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.topAppBar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val model = BusinessesViewModel(applicationContext)
+        val businessString = intent.extras?.getString("business")
+        val business = Gson().fromJson(businessString, Business::class.java)
+
+        Log.d("EditBusiness", businessString!!)
+
+        fillFormWithData(business)
 
         val items = listOf("Loja de departamento", "Universidade", "Shopping", "Aeroporto", "Outro")
         val arrAdapter = ArrayAdapter(applicationContext, R.layout.list_item, items)
         (binding.fieldCategory.editText as? AutoCompleteTextView)?.setAdapter(arrAdapter)
 
-
         binding.btnMore.setOnClickListener {
             val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(pickIntent, 100)
-            Log.d(TAG, "Button 'more' clicked.")
+            Log.d(tag, "Button 'more' clicked.")
         }
 
         binding.listPictures.setHasFixedSize(true)
@@ -62,9 +68,6 @@ class CreateNewActivity : AppCompatActivity() {
             false
         )
 
-        adapter = PictureItemAdapter(pictures)
-        binding.listPictures.adapter = adapter
-
         loadPictures()
 
         binding.btnSave.setOnClickListener {
@@ -72,16 +75,16 @@ class CreateNewActivity : AppCompatActivity() {
             description = binding.fieldDescription.editText?.text.toString()
             val category = binding.fieldCategory.editText?.text.toString()
             number = binding.fieldNumber.editText?.text.toString()
-            val latitude = intent.extras?.getDouble("latitude")
-            val longitude = intent.extras?.getDouble("longitude")
-            val data = Business(name, description, number, category, latitude!!, longitude!!)
+            val data = Business(name, description, number, category, business.latitude, business.longitude)
+            data.id = business.id
 
             if(validateData()) {
-                val id = model.add(data)
+                deleteAllSavedPictures(business)
+                Application.database?.businessDao()?.update(data)
 
                 if(pictures.isNotEmpty()) {
                     pictures.forEachIndexed { index, bitmap ->
-                        val fOut = FileOutputStream(createImageFile(id!!, index))
+                        val fOut = FileOutputStream(createImageFile(business.id.toLong(), index))
 
                         bitmap.compress(
                             Bitmap.CompressFormat.JPEG,
@@ -115,6 +118,14 @@ class CreateNewActivity : AppCompatActivity() {
         }
     }
 
+    private fun fillFormWithData(business: Business) {
+        binding.fieldName.editText?.text?.append(business.name)
+        binding.fieldDescription.editText?.text?.append(business.description)
+        binding.fieldCategory.editText?.text?.append(business.category)
+        binding.fieldNumber.editText?.text?.append(business.number)
+        findSavedPictures(business)
+    }
+
     private fun validateData(): Boolean {
         binding.fieldName.error = ""
         binding.fieldDescription.error = ""
@@ -138,7 +149,28 @@ class CreateNewActivity : AppCompatActivity() {
     private fun loadPictures() {
         adapter = PictureItemAdapter(pictures, true)
         binding.listPictures.adapter = adapter
-//        rvFilms.adapter = FilmCategoryItemAdapter(filmsCategory, fragmentManager!!)
+    }
+
+    private fun findSavedPictures(business: Business) {
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        storageDir?.listFiles()?.forEach {
+            if (it.name.startsWith(business.id.toString())) {
+                Log.d(tag, it.name)
+                val bitmap = getBitmapFromUri(Uri.fromFile(it))
+                pictures.add(bitmap)
+            }
+        }
+    }
+
+    private fun deleteAllSavedPictures(business: Business): Boolean {
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        storageDir?.listFiles()?.forEach {
+            if (it.name.startsWith(business.id.toString())) {
+                Log.d(tag, it.name)
+                return it.delete()
+            }
+        }
+        return false
     }
 
     @Throws(IOException::class)
@@ -150,6 +182,12 @@ class CreateNewActivity : AppCompatActivity() {
         return image
     }
 
+    /***
+     * Create an image file name
+     * @param id The business id
+     * @param position The position in which order the picture will be saved
+     * @return File
+     */
     @Throws(IOException::class)
     private fun createImageFile(id: Long, position: Int): File {
         // Create an image file name

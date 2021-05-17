@@ -1,12 +1,19 @@
 package com.felipheallef.elocations.ui.activity
 
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
@@ -19,13 +26,19 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import java.io.File
+
+const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mMap: GoogleMap
+    private lateinit var searchView: SearchView
+    private lateinit var searchViewAutoComplete: SearchView.SearchAutoComplete
     private var guidesActive = false
+    private var businessList = listOf<Business>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +72,41 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
+        if (requestCode == 100 && resultCode == RESULT_OK) {
             setupMapMarkers()
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+
+        // Associate searchable configuration with the SearchView
+        // Associate searchable configuration with the SearchView
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView = menu!!.findItem(R.id.action_search)
+            .actionView as SearchView
+
+        searchViewAutoComplete =
+            searchView.findViewById<SearchView.SearchAutoComplete>(androidx.appcompat.R.id.search_src_text)
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.maxWidth = Int.MAX_VALUE
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // filter recycler view when query submitted
+                Log.d(TAG, query)
+                searchByName(query, true)
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                // filter recycler view when text is changed
+                Log.d(TAG, query)
+                searchByName(query)
+                return false
+            }
+        })
         return true
     }
 
@@ -93,6 +134,14 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         }
     }
 
+    override fun onBackPressed() {
+        if (!searchView.isIconified) {
+            searchView.isIconified = true
+            return
+        }
+        super.onBackPressed()
+    }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -114,7 +163,14 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         BusinessBottomSheetFragment.getInstance(marker.tag as Business, storageDir).apply {
             this.show(supportFragmentManager, tag)
+            this.doAfterDeleted = {
+                marker.remove()
+            }
+            this.doAfterResult = {
+                recreate()
+            }
         }
+
     }
 
     /**
@@ -127,19 +183,51 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         model.business.observe(this@MainActivity, {
             // Add a marker to each business in the database
             if(it.isNotEmpty()) {
-
+                businessList = it
                 it.forEach { business ->
                     val markerOptions = MarkerOptions()
                         .position(business.location)
                         .title(business.name)
                         .snippet(business.description)
                     val marker = mMap.addMarker(markerOptions)
-                    marker.tag = business
+                    marker?.tag = business
                 }
 
                 // Move the camera to the first entry in the business list
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it[0].location, 15F))
             }
         })
+    }
+
+    fun searchByName(name: String, sendPressed: Boolean = false) {
+
+        val names: ArrayList<String> = arrayListOf()
+
+        val result = businessList.filter {
+            it.name.contains(name, ignoreCase = true)
+        }
+
+        result.forEach {
+             names.add(it.name)
+        }
+
+        val resultsAdapter = ArrayAdapter(applicationContext, R.layout.list_item, names)
+        searchViewAutoComplete.setAdapter(resultsAdapter)
+
+        searchViewAutoComplete.setOnItemClickListener { _, _, position, _ ->
+            val business = businessList.first { it.name == names[position] }
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(business.location, 15F))
+            Log.d(TAG, "Clicked: ${business.name}")
+        }
+
+        if (sendPressed) {
+            if (result.isNotEmpty()){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(result[0].location, 15F))
+            } else {
+                Toast.makeText(applicationContext, "Não foram econtrados nenhum item correspondente à sua pesquisa.", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
+
     }
 }

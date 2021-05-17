@@ -1,5 +1,6 @@
 package com.felipheallef.elocations.ui.fragment
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,26 +10,30 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.BottomsheetBusinessDetailsBinding
-import com.felipheallef.elocations.ui.activity.CreateNewActivity
-import com.felipheallef.elocations.ui.activity.MainActivity
+import com.felipheallef.elocations.ui.activity.EditBusinessActivity
 import com.felipheallef.elocations.ui.adapter.PictureItemAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.gson.Gson
 import java.io.File
 import java.io.FileDescriptor
 import java.io.IOException
 
 const val TAG = "BusinessBottomSheet"
 
-class BusinessBottomSheetFragment() : BottomSheetDialogFragment() {
+class BusinessBottomSheetFragment : BottomSheetDialogFragment() {
 
     lateinit var business: Business
     lateinit var storageDir: File
     private lateinit var binding: BottomsheetBusinessDetailsBinding
+    var doAfterDeleted: () -> Unit = {}
+    var doAfterResult: () -> Unit = {}
 
     override fun getTheme(): Int {
         return R.style.Theme_ELocations_BottomSheetDialog
@@ -72,6 +77,15 @@ class BusinessBottomSheetFragment() : BottomSheetDialogFragment() {
         }
 
         setupBusinessInfo()
+        setupActionButtons()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 100 && resultCode == AppCompatActivity.RESULT_OK) {
+            dismiss()
+            doAfterResult.invoke()
+        }
     }
 
     @Throws(IOException::class)
@@ -90,6 +104,36 @@ class BusinessBottomSheetFragment() : BottomSheetDialogFragment() {
                 "\n\nTelefone: ${business.number}" +
                 "\n\nCategoria: ${business.category}"
 
+    }
+
+    private fun setupActionButtons() {
+
+        // Delete button
+        binding.btnDelete.setOnClickListener {
+            val deleted = Application.database?.businessDao()?.delete(business)
+
+            // check if deleted successful
+            if (deleted != 0) {
+                doAfterDeleted.invoke()
+                dismiss()
+            } else {
+                Toast.makeText(activity?.applicationContext, "Erro ao tentar excluir o registro.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
+        binding.btnEdit.setOnClickListener {
+            val extras = Bundle()
+            val businessStr = Gson().toJson(this.business)
+            extras.putString("business", businessStr)
+
+            val intent = Intent(activity?.applicationContext, EditBusinessActivity::class.java).apply {
+                putExtras(extras)
+            }
+
+//            activity?.startActivityFromFragment(this@BusinessBottomSheetFragment, intent, 100)
+            startActivityForResult(intent, 100)
+        }
     }
 
     companion object {

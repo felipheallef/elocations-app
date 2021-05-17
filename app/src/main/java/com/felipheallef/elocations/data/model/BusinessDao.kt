@@ -1,9 +1,6 @@
 package com.felipheallef.elocations.data.model
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface BusinessDao {
@@ -20,9 +17,12 @@ interface BusinessDao {
     fun insert(user: Business): Long
 
     @Insert
-    fun insertAll(vararg users: Business)
+    fun insertAll(vararg businesses: Business)
 
     @Delete
-    fun delete(user: Business)
+    fun delete(business: Business): Int
+
+    @Update
+    fun update(business: Business)
 
 }
