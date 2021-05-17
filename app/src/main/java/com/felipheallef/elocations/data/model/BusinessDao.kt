@@ -14,7 +14,7 @@ interface BusinessDao {
     fun findByName(name: String, description: String): Business
 
     @Insert
-    fun insert(user: Business): Long
+    fun insert(business: Business): Long
 
     @Insert
     fun insertAll(vararg businesses: Business)

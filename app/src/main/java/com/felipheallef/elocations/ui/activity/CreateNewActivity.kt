@@ -44,7 +44,7 @@ class CreateNewActivity : AppCompatActivity() {
 
         val model = BusinessesViewModel(applicationContext)
 
-        val items = listOf("Loja de departamento", "Universidade", "Shopping", "Aeroporto", "Outro")
+        val items = resources.getStringArray(R.array.categories)
         val arrAdapter = ArrayAdapter(applicationContext, R.layout.list_item, items)
         (binding.fieldCategory.editText as? AutoCompleteTextView)?.setAdapter(arrAdapter)
 
@@ -79,8 +79,8 @@ class CreateNewActivity : AppCompatActivity() {
             if(validateData()) {
                 val id = model.add(data)
 
-                if(pictures.isNotEmpty()) {
-                    pictures.forEachIndexed { index, bitmap ->
+                if(adapter.pictures.isNotEmpty()) {
+                    adapter.pictures.forEachIndexed { index, bitmap ->
                         val fOut = FileOutputStream(createImageFile(id!!, index))
 
                         bitmap.compress(

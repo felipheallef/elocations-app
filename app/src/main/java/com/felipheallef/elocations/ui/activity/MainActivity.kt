@@ -3,9 +3,9 @@ package com.felipheallef.elocations.ui.activity
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -26,7 +26,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
 const val TAG = "MainActivity"
@@ -41,6 +40,7 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
     private var businessList = listOf<Business>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_ELocations)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -87,10 +87,11 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
             .actionView as SearchView
 
         searchViewAutoComplete =
-            searchView.findViewById<SearchView.SearchAutoComplete>(androidx.appcompat.R.id.search_src_text)
+            searchView.findViewById(androidx.appcompat.R.id.search_src_text)
 
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.maxWidth = Int.MAX_VALUE
+        searchViewAutoComplete.setTextColor(Color.WHITE)
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {

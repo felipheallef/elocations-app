@@ -51,7 +51,7 @@ class EditBusinessActivity : AppCompatActivity() {
 
         fillFormWithData(business)
 
-        val items = listOf("Loja de departamento", "Universidade", "Shopping", "Aeroporto", "Outro")
+        val items = resources.getStringArray(R.array.categories)
         val arrAdapter = ArrayAdapter(applicationContext, R.layout.list_item, items)
         (binding.fieldCategory.editText as? AutoCompleteTextView)?.setAdapter(arrAdapter)
 
@@ -82,8 +82,8 @@ class EditBusinessActivity : AppCompatActivity() {
                 deleteAllSavedPictures(business)
                 Application.database?.businessDao()?.update(data)
 
-                if(pictures.isNotEmpty()) {
-                    pictures.forEachIndexed { index, bitmap ->
+                if(adapter.pictures.isNotEmpty()) {
+                    adapter.pictures.forEachIndexed { index, bitmap ->
                         val fOut = FileOutputStream(createImageFile(business.id.toLong(), index))
 
                         bitmap.compress(
