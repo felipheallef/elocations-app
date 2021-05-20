@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.model.Business
 import com.felipheallef.elocations.databinding.ActivityMainBinding
@@ -27,8 +29,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import java.io.File
-
-const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
 
@@ -46,6 +46,10 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
         setContentView(binding.root)
 
         setSupportActionBar(binding.topAppBar)
+
+        binding.topAppBar.setNavigationOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -80,7 +84,6 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        // Associate searchable configuration with the SearchView
         // Associate searchable configuration with the SearchView
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView = menu!!.findItem(R.id.action_search)
@@ -161,14 +164,24 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
     }
 
     override fun onInfoWindowClick(marker: Marker) {
+        val business = marker.tag as Business
         val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        BusinessBottomSheetFragment.getInstance(marker.tag as Business, storageDir).apply {
+        BusinessBottomSheetFragment.getInstance(business, storageDir).apply {
             this.show(supportFragmentManager, tag)
             this.doAfterDeleted = {
                 marker.remove()
             }
             this.doAfterResult = {
-                recreate()
+//                recreate()
+                val newBusiness = Application.database?.businessDao()?.findById(business.id)
+
+                if(newBusiness != null) {
+                    marker.title = newBusiness.name
+                    marker.snippet = newBusiness.description
+                    marker.tag = newBusiness
+                    marker.hideInfoWindow()
+                }
+
             }
         }
 
@@ -225,10 +238,15 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, O
             if (result.isNotEmpty()){
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(result[0].location, 15F))
             } else {
-                Toast.makeText(applicationContext, "Não foram econtrados nenhum item correspondente à sua pesquisa.", Toast.LENGTH_LONG)
+                Toast.makeText(applicationContext, "Não foram encontrados nenhum item correspondente à sua pesquisa.", Toast.LENGTH_LONG)
                     .show()
             }
         }
 
     }
+
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
 }

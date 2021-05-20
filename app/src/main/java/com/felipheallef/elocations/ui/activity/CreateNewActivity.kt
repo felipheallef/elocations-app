@@ -165,5 +165,8 @@ class CreateNewActivity : AppCompatActivity() {
         }
     }
 
+    companion object {
+        const val TAG = "CreateNewActivity"
+    }
 
 }

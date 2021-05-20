@@ -25,8 +25,6 @@ import java.io.File
 import java.io.FileDescriptor
 import java.io.IOException
 
-const val TAG = "BusinessBottomSheet"
-
 class BusinessBottomSheetFragment : BottomSheetDialogFragment() {
 
     lateinit var business: Business
@@ -100,9 +98,11 @@ class BusinessBottomSheetFragment : BottomSheetDialogFragment() {
     private fun setupBusinessInfo() {
 
         binding.tvBusinessName.text = business.name
-        binding.tvBusinessDescription.text = business.description +
-                "\n\nTelefone: ${business.number}" +
-                "\n\nCategoria: ${business.category}"
+//        binding.tvBusinessDescription.text = business.description +
+//                "\n\nTelefone: ${business.number}" +
+//                "\n\nCategoria: ${business.category}"
+        binding.tvBusinessDescription.text = getString(R.string.text_display_business_description)
+            .format(business.description, business.number, business.category)
 
     }
 
@@ -114,6 +114,7 @@ class BusinessBottomSheetFragment : BottomSheetDialogFragment() {
 
             // check if deleted successful
             if (deleted != 0) {
+                business = Application.database?.businessDao()?.findById(business.id)!!
                 doAfterDeleted.invoke()
                 dismiss()
             } else {
@@ -137,6 +138,8 @@ class BusinessBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     companion object {
+
+        const val TAG = "BusinessBottomSheet"
 
         fun getInstance(business: Business, file: File?): BusinessBottomSheetFragment {
             val fragment = BusinessBottomSheetFragment()
