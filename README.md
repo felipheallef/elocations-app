@@ -8,6 +8,4 @@ Nesta etapa você deverá criar um app mobile em Kotlin chamado eLocations. Com 
 
 ---
 
-**Desafio**
-
-![Prototipo](https://raw.githubusercontent.com/felipheallef/elocations-app/main/images/prototipo.jpg)
+![Protótipo](https://raw.githubusercontent.com/felipheallef/elocations-app/main/images/prototipo.jpeg)
