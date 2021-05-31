@@ -2,11 +2,9 @@ package com.felipheallef.elocations
 
 import android.app.Application
 import android.content.Context
-import androidx.core.graphics.toColor
 import androidx.room.Room
 import com.felipheallef.elocations.data.AppDatabase
-import com.felipheallef.elocations.data.model.Business
-import com.google.gson.Gson
+import com.felipheallef.elocations.data.entity.Business
 
 class Application : Application() {
 
@@ -33,12 +31,6 @@ class Application : Application() {
                 prefsEditor.apply()
             }
         }
-
-        //Stetho
-//        val initializerBuilder = Stetho.newInitializerBuilder(this)
-//        initializerBuilder.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
-//        val initializer = initializerBuilder.build()
-//        Stetho.initialize(initializer)
 
     }
 

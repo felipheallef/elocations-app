@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.R
-import com.felipheallef.elocations.data.model.Business
+import com.felipheallef.elocations.data.entity.Business
 import com.felipheallef.elocations.databinding.ActivityMainBinding
 import com.felipheallef.elocations.ui.fragment.BusinessBottomSheetFragment
 import com.felipheallef.elocations.ui.model.BusinessesViewModel
@@ -28,6 +28,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import java.io.File
 
 class MainActivity : AppCompatActivity(), GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {

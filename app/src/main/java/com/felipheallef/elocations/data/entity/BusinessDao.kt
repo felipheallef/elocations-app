@@ -1,4 +1,4 @@
-package com.felipheallef.elocations.data.model
+package com.felipheallef.elocations.data.entity
 
 import androidx.room.*
 
@@ -24,6 +24,9 @@ interface BusinessDao {
 
     @Delete
     fun delete(business: Business): Int
+
+    @Query("DELETE FROM business WHERE id = :id")
+    fun deleteById(id: Int): Int
 
     @Update
     fun update(business: Business)

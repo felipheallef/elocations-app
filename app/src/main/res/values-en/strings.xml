@@ -23,4 +23,5 @@
     <string name="action_edit">Edit</string>
     <string name="action_show_guides">Show guides</string>
     <string name="action_add">Add</string>
+    <string name="action_new">Novo</string>
 </resources>

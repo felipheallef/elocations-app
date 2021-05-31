@@ -81,16 +81,18 @@
 <!--                android:layout_gravity="bottom|end"-->
 <!--                android:layout_margin="16dp"-->
 <!--                android:contentDescription="@string/action_add_new"-->
-<!--                app:srcCompat="@drawable/ic_add_24"/>-->
+<!--                android:text="@string/action_add_new"-->
+<!--                app:srcCompat="@drawable/ic_add_24"-->
+<!--                style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton" />-->
 
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/fab_add_new"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="16dp"
-                android:text="@string/action_new"
-                app:icon="@drawable/ic_add_24"/>
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/fab_add_new"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="16dp"
+                    android:text="@string/action_add_new"
+                    app:icon="@drawable/ic_add_24"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
