@@ -14,7 +14,7 @@ import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.felipheallef.elocations.R
-import com.felipheallef.elocations.data.model.Business
+import com.felipheallef.elocations.data.entity.Business
 import com.felipheallef.elocations.databinding.ActivityCreateNewBinding
 import com.felipheallef.elocations.ui.adapter.PictureItemAdapter
 import com.felipheallef.elocations.ui.model.BusinessesViewModel

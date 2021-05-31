@@ -1,14 +1,11 @@
 package com.felipheallef.elocations.ui.model
 
-import android.content.ClipDescription
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.room.Room
 import com.felipheallef.elocations.Application
 import com.felipheallef.elocations.data.AppDatabase
-import com.felipheallef.elocations.data.model.Business
+import com.felipheallef.elocations.data.entity.Business
 
 class BusinessViewModel(context: Context) : ViewModel() {
 

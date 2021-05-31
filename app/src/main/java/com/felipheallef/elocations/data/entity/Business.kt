@@ -1,4 +1,4 @@
-package com.felipheallef.elocations.data.model
+package com.felipheallef.elocations.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

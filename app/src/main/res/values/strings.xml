@@ -41,5 +41,6 @@
     <string name="action_show_guides">Mostrar guias</string>
 
     <string name="text_display_business_description" translatable="false">%s\n\nTelefone: %s\n\nCategoria: %s</string>
+    <string name="action_new">Novo</string>
 
 </resources>

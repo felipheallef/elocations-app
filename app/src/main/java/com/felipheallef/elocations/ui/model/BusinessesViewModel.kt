@@ -1,14 +1,12 @@
 package com.felipheallef.elocations.ui.model
 
 import android.content.Context
-import android.text.Editable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.felipheallef.elocations.Application
-import com.felipheallef.elocations.R
 import com.felipheallef.elocations.data.AppDatabase
 import com.felipheallef.elocations.data.BusinessFormState
-import com.felipheallef.elocations.data.model.Business
+import com.felipheallef.elocations.data.entity.Business
 
 class BusinessesViewModel(context: Context) : ViewModel() {
 
